@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Caixeiro Viajante - Mapa Real</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet"/>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<header>
+  <div class="logo">ROTA<span>.</span>Unitau</div>
+  <div class="tag">Mapeamento Inteligente</div>
+</header>
+
+<div class="app">
+  <aside>
+    <div>
+      <div class="section-title">Algoritmos</div>
+      <div class="method-group">
+        <button class="method-btn active-encosta" data-m="encosta" onclick="setMetodo('encosta')">
+          <span class="m-name">encosta()</span>
+          <span class="m-desc">Hill Climbing puro. Para no primeiro mínimo local.</span>
+        </button>
+        <button class="method-btn" data-m="encosta_t" onclick="setMetodo('encosta_t')">
+          <span class="m-name">encosta_T()</span>
+          <span class="m-desc">Hill Climbing com tolerância T. Tenta TMAX vezes sem melhora.</span>
+        </button>
+        <button class="method-btn" data-m="tempera" onclick="setMetodo('tempera')">
+          <span class="m-name">têmpera()</span>
+          <span class="m-desc">Simulated Annealing. Aceita pioras com probabilidade e⁻ᵟ/T.</span>
+        </button>
+        <button class="method-btn" data-m="genetico" onclick="setMetodo('genetico')">
+          <span class="m-name">genético()</span>
+          <span class="m-desc">Algoritmo Genético com crossover OX1.</span>
+        </button>
+      </div>
+    </div>
+
+    <div id="param-tmax">
+      <div class="section-title">Parâmetro (Iterações / Gerações)</div>
+      <div class="param-row">
+        <input type="range" id="tmax" min="50" max="2000" value="500" step="50"
+               oninput="document.getElementById('tmax-val').textContent=this.value"/>
+        <div class="param-val" id="tmax-val">500</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-title">Resultado</div>
+      <div class="stats-box">
+        <div class="stat-row">
+          <span class="stat-label">Distância Est.</span>
+          <span class="stat-val cyan" id="s-custo">—</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Cidades</span>
+          <span class="stat-val pink" id="s-cidades">0</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Iterações</span>
+          <span class="stat-val green" id="s-iter">—</span>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-run" id="btn-run" onclick="rodar()" disabled>▶ EXECUTAR</button>
+    <button class="btn-clear" onclick="limpar()">✕ Limpar cidades</button>
+
+    <div class="hint">
+      <b>Como usar:</b><br/>
+      1. Clique nas ruas para adicionar cidades<br/>
+      2. Escolha o algoritmo<br/>
+      3. Clique em Executar
+    </div>
+  </aside>
+
+  <main>
+    <div class="canvas-toolbar">
+      <div class="dot"></div>
+      <span>Clique no mapa para adicionar pontos de entrega</span>
+    </div>
+    
+    <div id="map"></div>
+    
+    <div class="chart-panel">
+      <div class="chart-label">Evolução do Custo</div>
+      <canvas id="grafico"></canvas>
+    </div>
+    <div class="statusbar">
+      <span>Método: <b id="sb-metodo">encosta()</b></span>
+      <span>Status: <b id="sb-status">aguardando cidades</b></span>
+    </div>
+  </main>
+</div>
+
+<div id="loading">
+  <div class="spinner"></div>
+  <span id="loading-txt">Calculando rota…</span>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
