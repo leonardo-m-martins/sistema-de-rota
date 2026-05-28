@@ -4,6 +4,9 @@ let marcadores = [];
 let rotaAtiva = null;
 let metodo   = 'encosta';
 
+let linhaInicial = null;
+let linhaOtimizada = null;
+
 const COR = {
   encosta:   '#00e5ff',
   encosta_t: '#ff4081',
@@ -75,7 +78,9 @@ function limpar() {
   // Limpa o mapa
   marcadores.forEach(m => map.removeLayer(m));
   marcadores = [];
-  if (rotaAtiva) { map.removeLayer(rotaAtiva); rotaAtiva = null; }
+
+    if (linhaInicial) { map.removeLayer(linhaInicial); linhaInicial = null; }
+    if (linhaOtimizada) { map.removeLayer(linhaOtimizada); linhaOtimizada = null; }
 
   // Limpa a tela
   document.getElementById('s-custo').textContent = '—';
@@ -110,7 +115,8 @@ async function rodar() {
 
     if (data.erro) { alert('Erro: ' + data.erro); return; }
 
-    desenharRotaNoMapa(data.rota);
+
+    desenharAsDuasRotas(data.inicial, data.rota);
     desenharGrafico(data.historico);
     
     
@@ -127,21 +133,40 @@ async function rodar() {
 }
 
 
-function desenharRotaNoMapa(ordemIndices) {
-  if (rotaAtiva) { map.removeLayer(rotaAtiva); }
-
-  const coordenadasOrdenadas = ordemIndices.map(i => [cidades[i].lat, cidades[i].lng]);
-  coordenadasOrdenadas.push(coordenadasOrdenadas[0]); 
+function desenharAsDuasRotas(indicesIniciais, indicesOtimizados) {
+  // Limpa o mapa antes de desenhar
+  if (linhaInicial) { map.removeLayer(linhaInicial); }
+  if (linhaOtimizada) { map.removeLayer(linhaOtimizada); }
 
   const cor = COR[metodo];
 
-  rotaAtiva = L.polyline(coordenadasOrdenadas, {
+  // 1. Mapeia os índices bagunçados para Latitude/Longitude (Linha Reta)
+  const coordsIniciais = indicesIniciais.map(i => [cidades[i].lat, cidades[i].lng]);
+  coordsIniciais.push(coordsIniciais[0]); // Fecha o ciclo voltando pra casa
+
+  // 2. Mapeia os índices otimizados para Latitude/Longitude (Linha Reta)
+  const coordsOtimizadas = indicesOtimizados.map(i => [cidades[i].lat, cidades[i].lng]);
+  coordsOtimizadas.push(coordsOtimizadas[0]); // Fecha o ciclo voltando pra casa
+
+  // 3. Desenha a Rota Inicial Bagunçada (Cinza e Tracejada)
+  linhaInicial = L.polyline(coordsIniciais, {
+      color: '#888888',
+      weight: 3,
+      dashArray: '10, 10',
+      opacity: 0.6
+  }).addTo(map);
+
+  // 4. Desenha a Rota Otimizada (Com a cor do algoritmo)
+  linhaOtimizada = L.polyline(coordsOtimizadas, {
       color: cor,
-      weight: 4,
+      weight: 5,
       opacity: 0.9,
       lineCap: 'round',
       lineJoin: 'round'
   }).addTo(map);
+
+  // Faz a câmera do mapa focar exatamente nas rotas
+  map.fitBounds(linhaOtimizada.getBounds(), { padding: [30, 30] });
 }
 
 

@@ -56,10 +56,11 @@ def avalia(s, n, m):
         
     v += m[s[n-1]][s[0]]
     
-    return round(v, 4)
+    return float(round(v, 4))
 
 def sucessores(rota):
-    
+
+
     novo = rota[:]
     i, j = random.sample(range(len(novo)), 2)
     novo[i], novo[j] = novo[j], novo[i]
@@ -68,7 +69,8 @@ def sucessores(rota):
 
 
 def encosta(M, n):
-    atual = solucaoInicial(n)
+    inicial = solucaoInicial(n)
+    atual = inicial[:]
     va = avalia(atual, n, M)
     historico = [va]
 
@@ -81,10 +83,11 @@ def encosta(M, n):
             va = vn
             historico.append(va)
         else:
-            return atual, va, historico
+            return atual, va, historico, inicial
 
 def encosta_t(M, n, tmax=500):
-    atual = solucaoInicial(n)
+    inicial = solucaoInicial(n)
+    atual = inicial[:]
     va = avalia(atual, n, M)
     t = 0
     historico = [va]
@@ -101,10 +104,11 @@ def encosta_t(M, n, tmax=500):
         else:
             t += 1
 
-    return atual, va, historico
+    return atual, va, historico, inicial
 
 def tempera(M, n, T=1000.0, alpha=0.995, T_min=0.1):
-    atual = solucaoInicial(n)
+    inicial = solucaoInicial(n)
+    atual = inicial[:]
     va = avalia(atual, n, M)
     
     melhor = atual[:]
@@ -127,7 +131,26 @@ def tempera(M, n, T=1000.0, alpha=0.995, T_min=0.1):
 
         T *= alpha
 
-    return melhor, melhor_custo, historico
+    return melhor, melhor_custo, historico, inicial
+
+if __name__ == "__main__":
+    # 1. Matriz de distâncias de mentira (3 cidades)
+    M_teste = [
+        [0.0, 10.0, 15.0, 20.0, 25.0],
+        [10.0, 0.0, 35.0, 25.0, 30.0],
+        [15.0, 35.0, 0.0, 30.0, 5.0],
+        [20.0, 25.0, 30.0, 0.0, 15.0],
+        [25.0, 30.0, 5.0, 15.0, 0.0]
+    ]
+
+    n_teste = 5
+
+    # 2. Executa a sua lógica
+    rota_final, custo_final, historico, rota_inicial = encosta_t(M_teste, n_teste)
+
+    print(f"rota solucaoinicial: {rota_inicial}")
+    print(f"rota solucaootimizada:{rota_final}")
+    print(f"rota custo final:{custo_final}")
 
 
 

@@ -17,11 +17,6 @@ else:
     grafo = ox.graph_from_place("Taubaté, São Paulo, Brazil", network_type="drive")
     ox.save_graphml(grafo, ARQUIVO_GRAFO)        
 
-
-
-
-
-
 @app.route("/")
 def index():
     return render_template("index.html")
@@ -38,23 +33,25 @@ def resolver():
         return jsonify({"erro": "Mínimo de 3 cidades necessário."}), 400
 
     n = len(cidades)
-    
     M = gerarProblema(cidades, grafo)
     
     if metodo == "encosta":
-        rota, custo, historico = encosta(M, n)
+        rota, custo, historico, inicial = encosta(M, n)
     elif metodo == "encosta_t":
-        rota, custo, historico = encosta_t(M, n, tmax=tmax)
+         rota, custo, historico, inicial = encosta_t(M, n, tmax=tmax)
     elif metodo == "tempera":
-        rota, custo, historico = tempera(M, n)
+        rota, custo, historico, inicial = tempera(M, n)
     else:
         return jsonify({"erro": "Método inválido."}), 400
+
 
     return jsonify({
         "rota":      rota,
         "custo":     custo,
         "historico": historico,
-        "metodo":    metodo
+        "metodo":    metodo,
+        "inicial": inicial
+
     })
 
 @app.route("/api/ping", methods=["GET"])
@@ -63,3 +60,4 @@ def ping():
 
 if __name__ == "__main__":
     app.run(debug=True, use_reloader=False, port=5001)
+
