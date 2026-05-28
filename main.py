@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 from algoritmo import gerarProblema, encosta, encosta_t, tempera
+from ag_pcv import AG
 import networkx as nx
 import osmnx as ox
 import os
@@ -24,6 +25,7 @@ def index():
 
 @app.route("/api/resolver", methods=["POST"])
 def resolver():
+    data = request.get_json()
     dados = request.get_json()
     cidades = dados.get("cidades", [])
     metodo = dados.get("metodo", "encosta")
@@ -41,6 +43,21 @@ def resolver():
          rota, custo, historico, inicial = encosta_t(M, n, tmax=tmax)
     elif metodo == "tempera":
         rota, custo, historico, inicial = tempera(M, n)
+    elif metodo == "genetico":
+
+        tp = int(data.get("tp", 20))
+        ng = int(data.get("ng", 50))
+        tc = float(data.get("tc", 0.8))
+        tm = float(data.get("tm", 0.1))
+        ig = float(data.get("ig", 0.1))
+
+        
+        rota_ini, rota_final, custo_ini, custo_final = AG(n, M, tp, ng, tc, tm, ig)
+            
+        inicial = rota_ini.tolist()
+        rota = rota_final.tolist()
+        custo = float(custo_final)
+        historico = [float(custo_ini), float(custo_final)]
     else:
         return jsonify({"erro": "Método inválido."}), 400
 

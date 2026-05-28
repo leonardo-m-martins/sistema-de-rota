@@ -56,13 +56,31 @@ map.on('click', (e) => {
 
 function setMetodo(m) {
   metodo = m;
+  
+  
   document.querySelectorAll('.method-btn').forEach(b => {
     const bm = b.dataset.m;
     b.className = 'method-btn' + (bm === m ? ` active-${m}` : '');
   });
-  document.getElementById('param-tmax').style.display = (m === 'encosta_t' || m === 'genetico') ? 'block' : 'none';
+
+  // 2. Mapeamos as duas caixas diferentes do seu HTML
+  const divTmax = document.getElementById('param-tmax');
+  const divGenetico = document.getElementById('params-genetico');
+
+  
+  if (m === 'genetico') {
+      // Se for Genético: Esconde o TMAX e mostra os 5 campos
+      divTmax.style.display = 'none';
+      divGenetico.style.display = 'block';
+  } else {
+      // Se for outro: Mostra o TMAX e esconde os 5 campos
+      divTmax.style.display = (m === 'encosta_t' || m === 'tempera') ? 'block' : 'none';
+      divGenetico.style.display = 'none';
+  }
+
   document.getElementById('sb-metodo').textContent = m + '()';
 }
+
 setMetodo('encosta');
 
 function atualizar() {
@@ -152,7 +170,7 @@ function desenharAsDuasRotas(indicesIniciais, indicesOtimizados) {
   const coordsOtimizadas = indicesOtimizados.map(i => [cidades[i].lat, cidades[i].lng]);
   coordsOtimizadas.push(coordsOtimizadas[0]);
 
-  // 3. Rota Inicial — laranja vibrante para contrastar com o mapa escuro
+  // 3. Rota Inicial
   linhaInicial = L.polyline(coordsIniciais, {
     color:     '#ff6b35',
     weight:    4,
@@ -163,7 +181,7 @@ function desenharAsDuasRotas(indicesIniciais, indicesOtimizados) {
   }).addTo(map);
   linhaInicial.bindTooltip('Rota Inicial (aleatória)', { sticky: true });
 
-  // 4. Rota Otimizada — cor do algoritmo, desenhada por cima
+  // 4. Rota Otimizada 
   linhaOtimizada = L.polyline(coordsOtimizadas, {
     color:     cor,
     weight:    5,
@@ -205,7 +223,7 @@ function atualizarLegenda() {
   btnI.classList.toggle('leg-off', !mostrarInicial);
   btnO.classList.toggle('leg-off', !mostrarOtimizada);
 
-  // Atualiza a cor do botão da rota otimizada conforme o algoritmo ativo
+  
   document.getElementById('leg-dot-o').style.background = COR[metodo];
 }
 

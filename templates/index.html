@@ -45,10 +45,39 @@
     <div id="param-tmax">
       <div class="section-title">Parâmetro (Iterações / Gerações)</div>
       <div class="param-row">
-        <input type="range" id="tmax" min="50" max="2000" value="500" step="50"
+        <input type="number" id="tmax" min="1" max="500" value="500" step="50"
                oninput="document.getElementById('tmax-val').textContent=this.value"/>
         <div class="param-val" id="tmax-val">500</div>
       </div>
+      </div> <div id="params-genetico" style="display: none; margin-top: 20px;">
+      <div class="section-title">Parâmetros (Genético)</div>
+    
+      <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 10px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; color: #aaa; font-size: 0.9rem;">
+            <label for="ag-tp">População (TP):</label>
+            <input type="number" id="ag-tp" value="20" min="1" style="width: 70px; background: #111; color: #00e5ff; border: 1px solid #333; border-radius: 4px; padding: 4px; text-align: center; font-family: 'Space Mono', monospace;">
+        </div>
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; color: #aaa; font-size: 0.9rem;">
+            <label for="ag-ng">Gerações (NG):</label>
+            <input type="number" id="ag-ng" value="50" min="1" style="width: 70px; background: #111; color: #00e5ff; border: 1px solid #333; border-radius: 4px; padding: 4px; text-align: center; font-family: 'Space Mono', monospace;">
+        </div>
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; color: #aaa; font-size: 0.9rem;">
+            <label for="ag-tc">Crossover (TC):</label>
+            <input type="number" id="ag-tc" value="0.8" step="0.1" min="0" max="1" style="width: 70px; background: #111; color: #00e5ff; border: 1px solid #333; border-radius: 4px; padding: 4px; text-align: center; font-family: 'Space Mono', monospace;">
+        </div>
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; color: #aaa; font-size: 0.9rem;">
+            <label for="ag-tm">Mutação (TM):</label>
+            <input type="number" id="ag-tm" value="0.1" step="0.1" min="0" max="1" style="width: 70px; background: #111; color: #00e5ff; border: 1px solid #333; border-radius: 4px; padding: 4px; text-align: center; font-family: 'Space Mono', monospace;">
+        </div>
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; color: #aaa; font-size: 0.9rem;">
+            <label for="ag-ig">Inversão (IG):</label>
+            <input type="number" id="ag-ig" value="0.1" step="0.1" min="0" max="1" style="width: 70px; background: #111; color: #00e5ff; border: 1px solid #333; border-radius: 4px; padding: 4px; text-align: center; font-family: 'Space Mono', monospace;">
+        </div>
+    </div>
     </div>
 
     <button class="btn-run" id="btn-run" onclick="rodar()" disabled>▶ EXECUTAR</button>
@@ -83,7 +112,7 @@
       </button>
     </div>
 
-    <!-- ── PAINEL INFERIOR: Resultado + Gráfico lado a lado ── -->
+    <!-- ── PAINEL INFERIOR ── -->
     <div class="bottom-panel">
 
       <div class="result-panel">
