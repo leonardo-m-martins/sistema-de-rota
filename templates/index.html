@@ -5,11 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Caixeiro Viajante - Mapa Real</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet"/>
-
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-<link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}?v=1" />
+<link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}?v=2" />
 </head>
 <body>
 
@@ -19,6 +17,8 @@
 </header>
 
 <div class="app">
+
+  <!-- ── SIDEBAR: só algoritmos + ações ── -->
   <aside>
     <div>
       <div class="section-title">Algoritmos</div>
@@ -29,7 +29,7 @@
         </button>
         <button class="method-btn" data-m="encosta_t" onclick="setMetodo('encosta_t')">
           <span class="m-name">encosta_T()</span>
-          <span class="m-desc"> TMAX vezes sem melhora.</span>
+          <span class="m-desc">TMAX vezes sem melhora.</span>
         </button>
         <button class="method-btn" data-m="tempera" onclick="setMetodo('tempera')">
           <span class="m-name">têmpera()</span>
@@ -51,24 +51,6 @@
       </div>
     </div>
 
-    <div>
-      <div class="section-title">Resultado</div>
-      <div class="stats-box">
-        <div class="stat-row">
-          <span class="stat-label">Distância Est.</span>
-          <span class="stat-val cyan" id="s-custo">—</span>
-        </div>
-        <div class="stat-row">
-          <span class="stat-label">Cidades</span>
-          <span class="stat-val pink" id="s-cidades">0</span>
-        </div>
-        <div class="stat-row">
-          <span class="stat-label">Iterações</span>
-          <span class="stat-val green" id="s-iter">—</span>
-        </div>
-      </div>
-    </div>
-
     <button class="btn-run" id="btn-run" onclick="rodar()" disabled>▶ EXECUTAR</button>
     <button class="btn-clear" onclick="limpar()">✕ Limpar cidades</button>
 
@@ -80,18 +62,55 @@
     </div>
   </aside>
 
+  <!-- ── ÁREA PRINCIPAL ── -->
   <main>
     <div class="canvas-toolbar">
       <div class="dot"></div>
       <span>Clique no mapa para adicionar os pontos</span>
     </div>
-    
+
     <div id="map"></div>
-    
-    <div class="chart-panel">
-      <div class="chart-label">Evolução do Custo</div>
-      <canvas id="grafico"></canvas>
+
+    <!-- Legenda das rotas -->
+    <div class="rota-legenda">
+      <button id="leg-inicial" class="leg-btn" onclick="toggleRota('inicial')">
+        <span class="leg-dot" style="background:#ff6b35;"></span>
+        Rota Inicial
+      </button>
+      <button id="leg-otimizada" class="leg-btn" onclick="toggleRota('otimizada')">
+        <span class="leg-dot" id="leg-dot-o" style="background:#00e5ff;"></span>
+        Rota Otimizada
+      </button>
     </div>
+
+    <!-- ── PAINEL INFERIOR: Resultado + Gráfico lado a lado ── -->
+    <div class="bottom-panel">
+
+      <div class="result-panel">
+        <div class="chart-label">Resultado</div>
+        <div class="stats-box">
+          <div class="stat-row">
+            <span class="stat-label">Distância Est.</span>
+            <span class="stat-val cyan" id="s-custo">—</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Cidades</span>
+            <span class="stat-val pink" id="s-cidades">0</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Iterações</span>
+            <span class="stat-val green" id="s-iter">—</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-panel">
+        <div class="chart-label">Evolução do Custo</div>
+        <canvas id="grafico"></canvas>
+      </div>
+
+    </div>
+
     <div class="statusbar">
       <span>Método: <b id="sb-metodo">encosta()</b></span>
       <span>Status: <b id="sb-status">aguardando cidades</b></span>
@@ -104,6 +123,6 @@
   <span id="loading-txt">Calculando rota…</span>
 </div>
 
-<script src="{{ url_for('static', filename='script.js') }}?v=1"></script>
+<script src="{{ url_for('static', filename='script.js') }}?v=2"></script>
 </body>
 </html>

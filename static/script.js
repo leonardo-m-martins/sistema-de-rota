@@ -6,6 +6,8 @@ let metodo   = 'encosta';
 
 let linhaInicial = null;
 let linhaOtimizada = null;
+let mostrarInicial    = true;
+let mostrarOtimizada  = true;
 
 const COR = {
   encosta:   '#00e5ff',
@@ -79,8 +81,11 @@ function limpar() {
   marcadores.forEach(m => map.removeLayer(m));
   marcadores = [];
 
-    if (linhaInicial) { map.removeLayer(linhaInicial); linhaInicial = null; }
-    if (linhaOtimizada) { map.removeLayer(linhaOtimizada); linhaOtimizada = null; }
+    if (linhaInicial)   { map.removeLayer(linhaInicial);   linhaInicial   = null; }
+  if (linhaOtimizada) { map.removeLayer(linhaOtimizada); linhaOtimizada = null; }
+  mostrarInicial   = true;
+  mostrarOtimizada = true;
+  atualizarLegenda();
 
   // Limpa a tela
   document.getElementById('s-custo').textContent = '—';
@@ -134,39 +139,74 @@ async function rodar() {
 
 
 function desenharAsDuasRotas(indicesIniciais, indicesOtimizados) {
-  // Limpa o mapa antes de desenhar
-  if (linhaInicial) { map.removeLayer(linhaInicial); }
-  if (linhaOtimizada) { map.removeLayer(linhaOtimizada); }
+  if (linhaInicial)   { map.removeLayer(linhaInicial);   linhaInicial   = null; }
+  if (linhaOtimizada) { map.removeLayer(linhaOtimizada); linhaOtimizada = null; }
 
   const cor = COR[metodo];
 
-  // 1. Mapeia os índices bagunçados para Latitude/Longitude (Linha Reta)
+  // 1. Coordenadas da rota inicial (ordem aleatória)
   const coordsIniciais = indicesIniciais.map(i => [cidades[i].lat, cidades[i].lng]);
-  coordsIniciais.push(coordsIniciais[0]); // Fecha o ciclo voltando pra casa
+  coordsIniciais.push(coordsIniciais[0]);
 
-  // 2. Mapeia os índices otimizados para Latitude/Longitude (Linha Reta)
+  // 2. Coordenadas da rota otimizada
   const coordsOtimizadas = indicesOtimizados.map(i => [cidades[i].lat, cidades[i].lng]);
-  coordsOtimizadas.push(coordsOtimizadas[0]); // Fecha o ciclo voltando pra casa
+  coordsOtimizadas.push(coordsOtimizadas[0]);
 
-  // 3. Desenha a Rota Inicial Bagunçada (Cinza e Tracejada)
+  // 3. Rota Inicial — laranja vibrante para contrastar com o mapa escuro
   linhaInicial = L.polyline(coordsIniciais, {
-      color: '#888888',
-      weight: 3,
-      dashArray: '10, 10',
-      opacity: 0.6
+    color:     '#ff6b35',
+    weight:    4,
+    dashArray: '12, 8',
+    opacity:   0.85,
+    lineCap:   'round',
+    lineJoin:  'round'
   }).addTo(map);
+  linhaInicial.bindTooltip('Rota Inicial (aleatória)', { sticky: true });
 
-  // 4. Desenha a Rota Otimizada (Com a cor do algoritmo)
+  // 4. Rota Otimizada — cor do algoritmo, desenhada por cima
   linhaOtimizada = L.polyline(coordsOtimizadas, {
-      color: cor,
-      weight: 5,
-      opacity: 0.9,
-      lineCap: 'round',
-      lineJoin: 'round'
+    color:     cor,
+    weight:    5,
+    opacity:   0.95,
+    lineCap:   'round',
+    lineJoin:  'round'
   }).addTo(map);
+  linhaOtimizada.bindTooltip('Rota Otimizada', { sticky: true });
 
-  // Faz a câmera do mapa focar exatamente nas rotas
+  // Respeita o estado atual dos toggles
+  if (!mostrarInicial)   linhaInicial.setStyle({ opacity: 0, fillOpacity: 0 });
+  if (!mostrarOtimizada) linhaOtimizada.setStyle({ opacity: 0, fillOpacity: 0 });
+
   map.fitBounds(linhaOtimizada.getBounds(), { padding: [30, 30] });
+
+  // Atualiza a legenda visual
+  atualizarLegenda();
+}
+
+function toggleRota(qual) {
+  if (qual === 'inicial') {
+    mostrarInicial = !mostrarInicial;
+    if (linhaInicial)
+      linhaInicial.setStyle({ opacity: mostrarInicial ? 0.85 : 0 });
+  } else {
+    mostrarOtimizada = !mostrarOtimizada;
+    const cor = COR[metodo];
+    if (linhaOtimizada)
+      linhaOtimizada.setStyle({ opacity: mostrarOtimizada ? 0.95 : 0 });
+  }
+  atualizarLegenda();
+}
+
+function atualizarLegenda() {
+  const btnI = document.getElementById('leg-inicial');
+  const btnO = document.getElementById('leg-otimizada');
+  if (!btnI || !btnO) return;
+
+  btnI.classList.toggle('leg-off', !mostrarInicial);
+  btnO.classList.toggle('leg-off', !mostrarOtimizada);
+
+  // Atualiza a cor do botão da rota otimizada conforme o algoritmo ativo
+  document.getElementById('leg-dot-o').style.background = COR[metodo];
 }
 
 

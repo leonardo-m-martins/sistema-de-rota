@@ -17,7 +17,8 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: 'Space Mono', monospace;
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
 }
@@ -35,7 +36,7 @@ header .logo span { color: var(--text); }
 header .tag { font-size: 0.65rem; border: 1px solid var(--muted); padding: 2px 8px; border-radius: 99px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; }
 
 /* ── LAYOUT ── */
-.app { display: grid; grid-template-columns: 300px 1fr; flex: 1; overflow: hidden; }
+.app { display: grid; grid-template-columns: 300px 1fr; flex: 1; min-height: 0; overflow: hidden; }
 
 /* ── SIDEBAR ── */
 aside { border-right: 1px solid var(--border); padding: 24px 20px; display: flex; flex-direction: column; gap: 24px; overflow-y: auto; }
@@ -88,19 +89,27 @@ aside { border-right: 1px solid var(--border); padding: 24px 20px; display: flex
 .hint b { color: var(--accent); }
 
 /* ── MAPA E GRÁFICO AREA ── */
-main { display: flex; flex-direction: column; overflow: hidden; }
+main { display: flex; flex-direction: column; overflow: hidden; min-height: 0; height: 100%; }
 .canvas-toolbar { padding: 12px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 16px; font-size: 0.7rem; color: var(--muted); }
 .canvas-toolbar .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent3); box-shadow: 0 0 6px var(--accent3); animation: pulse 2s infinite; }
 @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
 
 
-#map { flex: 1; z-index: 1; cursor: crosshair; }
+#map { flex: 1; min-height: 0; z-index: 1; cursor: crosshair; }
 .leaflet-tile { filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%); }
 
 
-.chart-panel { height: 120px; border-top: 1px solid var(--border); padding: 10px 16px 6px; display: flex; flex-direction: column; gap: 4px; }
-.chart-panel .chart-label { font-size: 0.6rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; }
-.chart-panel canvas { flex: 1; width: 100%; }
+/* ── PAINEL INFERIOR ── */
+.bottom-panel { height: 140px; border-top: 1px solid var(--border); display: grid; grid-template-columns: 220px 1fr; flex-shrink: 0; }
+
+.result-panel { padding: 10px 16px; border-right: 1px solid var(--border); display: flex; flex-direction: column; gap: 8px; overflow: hidden; }
+.result-panel .stats-box { flex: 1; gap: 6px; padding: 10px; }
+.result-panel .stat-val { font-size: 0.8rem; }
+
+.chart-panel { padding: 10px 16px 6px; display: flex; flex-direction: column; gap: 4px; overflow: hidden; }
+.chart-panel canvas { flex: 1; width: 100%; min-height: 0; }
+
+.chart-label { font-size: 0.6rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 2px; }
 
 
 .statusbar { padding: 6px 20px; border-top: 1px solid var(--border); font-size: 0.65rem; color: var(--muted); display: flex; gap: 24px; }
@@ -111,3 +120,9 @@ main { display: flex; flex-direction: column; overflow: hidden; }
 #loading.show { display: flex; }
 .spinner { width: 40px; height: 40px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
+/* ── LEGENDA DE ROTAS ── */
+.rota-legenda { display: flex; gap: 10px; padding: 6px 12px; background: var(--surface); border-bottom: 1px solid var(--border); }
+.leg-btn { display: flex; align-items: center; gap: 7px; padding: 4px 12px; border: 1px solid var(--border); border-radius: 20px; background: transparent; color: var(--muted); font-family: 'Space Mono', monospace; font-size: 0.68rem; cursor: pointer; transition: opacity .2s, background .2s; }
+.leg-btn:hover { background: rgba(255,255,255,.06); border-color: var(--muted); }
+.leg-dot { width: 22px; height: 4px; border-radius: 2px; display: inline-block; flex-shrink: 0; }
+.leg-off { opacity: .35; text-decoration: line-through; }
