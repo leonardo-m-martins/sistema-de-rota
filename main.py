@@ -45,19 +45,19 @@ def resolver():
         rota, custo, historico, inicial = tempera(M, n)
     elif metodo == "genetico":
 
-        tp = int(data.get("tp", 20))
-        ng = int(data.get("ng", 50))
-        tc = float(data.get("tc", 0.8))
-        tm = float(data.get("tm", 0.1))
-        ig = float(data.get("ig", 0.1))
+        tp = int(data.get("tp",))
+        ng = int(data.get("ng",))
+        tc = float(data.get("tc",))
+        tm = float(data.get("tm",))
+        ig = float(data.get("ig",))
 
         
-        rota_ini, rota_final, custo_ini, custo_final = AG(n, M, tp, ng, tc, tm, ig)
-            
+        rota_ini, rota_final, custo_ini, custo_final, hist_ag = AG(n, M, tp, ng, tc, tm, ig)
+
         inicial = rota_ini.tolist()
         rota = rota_final.tolist()
         custo = float(custo_final)
-        historico = [float(custo_ini), float(custo_final)]
+        historico = [float(valor) for valor in hist_ag]
     else:
         return jsonify({"erro": "Método inválido."}), 400
 
@@ -65,6 +65,7 @@ def resolver():
     return jsonify({
         "rota":      rota,
         "custo":     custo,
+        "custo_inicial": historico[0],
         "historico": historico,
         "metodo":    metodo,
         "inicial": inicial

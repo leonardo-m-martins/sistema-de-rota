@@ -120,14 +120,23 @@ async function rodar() {
   document.getElementById('loading-txt').textContent = `Executando ${metodo}()…`;
 
   try {
-    const tmax = parseInt(document.getElementById('tmax').value);
+    const tmax = parseInt(document.getElementById('tmax').value) || 500;
     
-  
+    // 
     const body = {
       cidades: cidades.map(c => [c.lat, c.lng]),
-      metodo,
-      tmax
+      metodo: metodo,
+      tmax: tmax
     };
+
+    //  ADICIONA AS TAXAS NO PACOTE 
+    if (metodo === 'genetico') {
+      body.tp = parseInt(document.getElementById('ag-tp').value);
+      body.ng = parseInt(document.getElementById('ag-ng').value);
+      body.tc = parseFloat(document.getElementById('ag-tc').value);
+      body.tm = parseFloat(document.getElementById('ag-tm').value);
+      body.ig = parseFloat(document.getElementById('ag-ig').value);
+    }
     
     const res  = await fetch(`${API}/api/resolver`, {
       method: 'POST',
@@ -138,13 +147,15 @@ async function rodar() {
 
     if (data.erro) { alert('Erro: ' + data.erro); return; }
 
-
     desenharAsDuasRotas(data.inicial, data.rota);
     desenharGrafico(data.historico);
     
+    //ATUALIZA O PAINEL COM O ANTES E DEPOIS
+    const kmIni = Number(data.custo_inicial).toFixed(2);
+    const kmFinal = Number(data.custo).toFixed(2);
     
-    const km = Number(data.custo).toFixed(2);
-    document.getElementById('s-custo').textContent = km + ' km';
+    document.getElementById('s-custo-ini').textContent = kmIni + ' km'; // Linha nova!
+    document.getElementById('s-custo').textContent = kmFinal + ' km';   // Linha antiga
     document.getElementById('s-iter').textContent  = data.historico.length;
     document.getElementById('sb-status').textContent = 'rota calculada';
 

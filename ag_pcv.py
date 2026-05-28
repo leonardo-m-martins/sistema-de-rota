@@ -118,12 +118,14 @@ def AjustaRestricao(n,desc,qd,corte):
             j += 1
     return desc
 #---------------------------------------------------------------------
-# Retorna (nessa ordem) solução inicial, solução final, custo incial, custo final
+# Retorna  solução inicial, solução final, custo incial, custo final
 def AG(n,mat,tp,ng,tc,tm,ig):
     pop = PopIni(n,tp)
     fit = Aptidao(n,mat,pop,tp)
     pop, fit = Ordena(pop,fit)
     si = pop[0]
+    historico = [Avalia(n, mat, si)]
+
     for g in range(ng):
         desc, qd, corte = Descendentes(n,pop,fit,tp,tc,tm)
         fit_d = Aptidao(n,mat,desc,qd)
@@ -131,8 +133,10 @@ def AG(n,mat,tp,ng,tc,tm,ig):
         pop  = NovaPop(pop,desc,tp,ig)
         fit = Aptidao(n,mat,pop,tp)
         pop, fit = Ordena(pop,fit)
+
+        historico.append(Avalia(n, mat, pop[0]))
     sf = pop[0]
-    return si, sf, Avalia(n,mat,si), Avalia(n,mat,sf) 
+    return si, sf, Avalia(n,mat,si), Avalia(n,mat,sf), historico 
 
 def test_ag():
     n = 20
