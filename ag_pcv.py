@@ -1,6 +1,5 @@
 import numpy as np
 import random as rd
-import copy as cp
 #---------------------------------------------------------------------
 # Gera matriz de adjacências
 def GerarProblema(n,min1,max1):    
@@ -26,7 +25,9 @@ def Ordena(p,f):
 #---------------------------------------------------------------------
 # Gera a população inicial
 def PopIni(n, tp):
-    pop = np.array([np.random.permutation(n) for _ in range(tp)])
+    # random number generator
+    rng = np.random.default_rng()
+    pop = np.array([rng.permutation(n) for _ in range(tp)])
 
     return pop
 #---------------------------------------------------------------------
@@ -86,7 +87,11 @@ def Descendentes(n,pop,fit,tp,tc,tm):
             desc[i],desc[i+1] = Cruzamento(p1,p2,corte,n)
         else:
             desc[i],desc[i+1] = p1, p2
-        if rd.uniform(0,1) <= tm:    
+            
+        # Ajustar a restrição antes da mutação
+        desc = AjustaRestricao(n, desc, qd, corte)
+
+        if rd.uniform(0,1) <= tm:
             desc[i] = Mutacao(desc[i],n)
         if rd.uniform(0,1) <= tm:    
             desc[i+1] = Mutacao(desc[i+1],n)
@@ -102,17 +107,18 @@ def NovaPop(pop,desc,tp,ig):
 # AJUSTA SOLUÇÃO PARA ATENDER A RESTRIÇÃO PCV
 def AjustaRestricao(n,desc,qd,corte):
     for i in range(qd):
-        alfabeto = list(range(0,n))
-        alfabeto = [x for x in alfabeto if x not in desc[i]]
+        alfabeto = [x for x in range(n) if x not in desc[i]]
         rd.shuffle(alfabeto)
+        parte1 = desc[i][:corte]
         j = corte
         while(j<n and len(alfabeto)>0):
-            if(desc[i][j] not in alfabeto):
+            if(desc[i][j] in parte1):
                 desc[i][j] = alfabeto[0]
                 alfabeto.remove(alfabeto[0])
             j += 1
     return desc
 #---------------------------------------------------------------------
+# Retorna (nessa ordem) solução inicial, solução final, custo incial, custo final
 def AG(n,mat,tp,ng,tc,tm,ig):
     pop = PopIni(n,tp)
     fit = Aptidao(n,mat,pop,tp)
@@ -120,7 +126,6 @@ def AG(n,mat,tp,ng,tc,tm,ig):
     si = pop[0]
     for g in range(ng):
         desc, qd, corte = Descendentes(n,pop,fit,tp,tc,tm)
-        desc = AjustaRestricao(n,desc,len(desc),corte)
         fit_d = Aptidao(n,mat,desc,qd)
         desc, fit_d = Ordena(desc,fit_d)
         pop  = NovaPop(pop,desc,tp,ig)
@@ -129,30 +134,22 @@ def AG(n,mat,tp,ng,tc,tm,ig):
     sf = pop[0]
     return si, sf, Avalia(n,mat,si), Avalia(n,mat,sf) 
 
-#---------------------------------------------------------------------
-# MÓDULO PRINCIPAL
-#---------------------------------------------------------------------
-N    = 100   # quantidade de pontos
-MIN1 = 20   # valor mínimo para matriz de adjacências
-MAX1 = 600  # valor máximo para matriz de adjacências
+def test_ag():
+    n = 20
+    # matriz n x n
+    mat = [
+        [rd.random() for _ in range(n)] for _ in range(n)
+    ]
+    si, sf, vi, vf = AG(n, mat, 20, 50, 0.8, 0.1, 0.1)
 
-TP   = 20    # tamanho da população
-NG   = [100,50,100]    # número de gerações
-TC   = [0.8,0.7,0.8]  # taxa de cruzamento
-TM   = [0.1,0.1,0.2]  # taxa de mutação
-IG   = [0.2,0.2,0.3]  # intervalo de geração
+    if len(np.unique(si)) == len(si):   print("si válido")
+    else:                               print("si inválido")
+    
+    if len(np.unique(sf)) == len(sf):   print("sf válido")
+    else:                               print("sf inválido")
 
-mat = GerarProblema(N,MIN1,MAX1)
-si, sf, vi, vf = AG(N,mat,TP,NG[0],TC[0],TM[0],IG[0])
+    print(f'Inicial: {si}\tcusto: {vi}', 
+          f'Final:   {sf}\tcusto: {vf}', sep="\n")
 
-print("Ganho: ",100*(vi-vf)/vi)
-
-"""
-for tp in TP:
-    for ng in NG:
-        for tc in TC:
-            for tm in TM:
-                for ig in IG:
-                    si, sf, vi, vf = AG(N,mat,tp,ng,tc,tm,ig)
-                    print(tp,ng,tc,tm,ig,"ganho: ",round((100.*abs(vi-vf))/vi),"%")
-"""
+if __name__ == "__main__":
+    test_ag()
