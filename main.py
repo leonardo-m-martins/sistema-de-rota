@@ -42,7 +42,10 @@ def resolver():
     elif metodo == "encosta_t":
          rota, custo, historico, inicial = encosta_t(M, n, tmax=tmax)
     elif metodo == "tempera":
-        rota, custo, historico, inicial = tempera(M, n)
+        ti = float(dados.get("ti", 1000.0))
+        tf = float(dados.get("tf", 0.01))
+        fr = float(dados.get("fr", 0.995))
+        rota, custo, historico, inicial = tempera(M, n,T=ti, alpha=fr, T_min=tf)
     elif metodo == "genetico":
 
         tp = int(data.get("tp",))

@@ -56,26 +56,33 @@ map.on('click', (e) => {
 
 function setMetodo(m) {
   metodo = m;
-  
-  
+
   document.querySelectorAll('.method-btn').forEach(b => {
     const bm = b.dataset.m;
     b.className = 'method-btn' + (bm === m ? ` active-${m}` : '');
   });
 
-  // 2. Mapeamos as duas caixas diferentes do seu HTML
+  
   const divTmax = document.getElementById('param-tmax');
   const divGenetico = document.getElementById('params-genetico');
+  const divTempera = document.getElementById('params-tempera'); 
 
   
+  divGenetico.style.display = 'none';
+  divTempera.style.display = 'none';
+
+  // Mostra apenas as caixas corretas dependendo do método
   if (m === 'genetico') {
-      // Se for Genético: Esconde o TMAX e mostra os 5 campos
-      divTmax.style.display = 'none';
-      divGenetico.style.display = 'block';
+    divTmax.style.display = 'none';
+    divGenetico.style.display = 'block';
+    
+  } else if (m === 'tempera') {
+    divTmax.style.display = 'none'; 
+    divTempera.style.display = 'block';
+    
   } else {
-      // Se for outro: Mostra o TMAX e esconde os 5 campos
-      divTmax.style.display = (m === 'encosta_t' || m === 'tempera') ? 'block' : 'none';
-      divGenetico.style.display = 'none';
+    // Para Encosta e Encosta_t
+    divTmax.style.display = (m === 'encosta_t') ? 'block' : 'none';
   }
 
   document.getElementById('sb-metodo').textContent = m + '()';
@@ -106,6 +113,7 @@ function limpar() {
   atualizarLegenda();
 
   // Limpa a tela
+  document.getElementById('s-custo-ini').textContent = '-';
   document.getElementById('s-custo').textContent = '—';
   document.getElementById('s-iter').textContent  = '—';
   gctx.clearRect(0,0,gcvs.width,gcvs.height);
@@ -136,6 +144,11 @@ async function rodar() {
       body.tc = parseFloat(document.getElementById('ag-tc').value);
       body.tm = parseFloat(document.getElementById('ag-tm').value);
       body.ig = parseFloat(document.getElementById('ag-ig').value);
+    }
+    if (metodo === 'tempera') {
+      body.ti = parseFloat(document.getElementById('temp-ti').value);
+      body.tf = parseFloat(document.getElementById('temp-tf').value);
+      body.fr = parseFloat(document.getElementById('temp-fr').value);
     }
     
     const res  = await fetch(`${API}/api/resolver`, {
@@ -173,15 +186,15 @@ function desenharAsDuasRotas(indicesIniciais, indicesOtimizados) {
 
   const cor = COR[metodo];
 
-  // 1. Coordenadas da rota inicial (ordem aleatória)
+  //  Coordenadas da rota inicial (ordem aleatória)
   const coordsIniciais = indicesIniciais.map(i => [cidades[i].lat, cidades[i].lng]);
   coordsIniciais.push(coordsIniciais[0]);
 
-  // 2. Coordenadas da rota otimizada
+  // Coordenadas da rota otimizada
   const coordsOtimizadas = indicesOtimizados.map(i => [cidades[i].lat, cidades[i].lng]);
   coordsOtimizadas.push(coordsOtimizadas[0]);
 
-  // 3. Rota Inicial
+  //Rota Inicial
   linhaInicial = L.polyline(coordsIniciais, {
     color:     '#ff6b35',
     weight:    4,
@@ -192,7 +205,7 @@ function desenharAsDuasRotas(indicesIniciais, indicesOtimizados) {
   }).addTo(map);
   linhaInicial.bindTooltip('Rota Inicial (aleatória)', { sticky: true });
 
-  // 4. Rota Otimizada 
+  // Rota Otimizada 
   linhaOtimizada = L.polyline(coordsOtimizadas, {
     color:     cor,
     weight:    5,
@@ -202,7 +215,7 @@ function desenharAsDuasRotas(indicesIniciais, indicesOtimizados) {
   }).addTo(map);
   linhaOtimizada.bindTooltip('Rota Otimizada', { sticky: true });
 
-  // Respeita o estado atual dos toggles
+  
   if (!mostrarInicial)   linhaInicial.setStyle({ opacity: 0, fillOpacity: 0 });
   if (!mostrarOtimizada) linhaOtimizada.setStyle({ opacity: 0, fillOpacity: 0 });
 
@@ -291,4 +304,93 @@ function desenharGrafico(hist) {
   gctx.arc(lx, ly, 3, 0, Math.PI*2);
   gctx.fillStyle = cor;
   gctx.fill();
+}
+
+async function compararMetodos() {
+    
+    if (cidades.length < 3) {
+        alert('Adicione pelo menos 3 cidades no mapa para fazer a comparação.');
+        return;
+    }
+
+    const loading = document.getElementById('loading');
+    loading.classList.add('show');
+    
+    const tbody = document.getElementById('tabela-comparacao');
+    tbody.innerHTML = ''; // Limpa a tabela antiga
+
+    const metodos = ['encosta', 'encosta_t', 'tempera', 'genetico'];
+    const nomesFamosos = {
+        'encosta': 'Subida de Encosta',
+        'encosta_t': 'Subida com Tentativas',
+        'tempera': 'Têmpera Simulada',
+        'genetico': 'Algoritmo Genético'
+    };
+
+    const tmax = parseInt(document.getElementById('tmax').value) || 500;
+
+    try {
+        // 
+        for (let met of metodos) {
+            document.getElementById('loading-txt').textContent = `Aguarde... Executando ${nomesFamosos[met]}`;
+            
+            
+            let reqBody = {
+                cidades: cidades.map(c => [c.lat, c.lng]),
+                metodo: met,
+                tmax: tmax
+            };
+
+            // Puxa as taxas do Genético da tela
+            if (met === 'genetico') {
+                reqBody.tp = parseInt(document.getElementById('ag-tp').value) || 20;
+                reqBody.ng = parseInt(document.getElementById('ag-ng').value) || 50;
+                reqBody.tc = parseFloat(document.getElementById('ag-tc').value) || 0.8;
+                reqBody.tm = parseFloat(document.getElementById('ag-tm').value) || 0.1;
+                reqBody.ig = parseFloat(document.getElementById('ag-ig').value) || 0.1;
+            }
+
+            // Puxa as taxas da Têmpera da tela
+            if (met === 'tempera') {
+                reqBody.ti = parseFloat(document.getElementById('temp-ti').value) || 1000.0;
+                reqBody.tf = parseFloat(document.getElementById('temp-tf').value) || 0.01;
+                reqBody.fr = parseFloat(document.getElementById('temp-fr').value) || 0.99;
+            }
+
+            //  Dispara para o Python 
+            const res = await fetch(`/api/resolver`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(reqBody)
+            });
+            
+            const data = await res.json();
+
+            if (!data.erro) {
+                //  Calcula o percentual de melhoria matemática
+                const custoIni = Number(data.custo_inicial);
+                const custoFim = Number(data.custo);
+                const melhoria = (((custoIni - custoFim) / custoIni) * 100).toFixed(1);
+
+                
+                tbody.innerHTML += `
+                    <tr style="border-bottom: 1px solid #222;">
+                        <td style="padding:15px; color:#00e5ff; font-weight: bold;">${nomesFamosos[met]}</td>
+                        <td style="color: #ff5555;">${custoIni.toFixed(2)} km</td>
+                        <td style="color: #00ff88;">${custoFim.toFixed(2)} km</td>
+                        <td style="color: #ff00ff;">⬇ ${melhoria}%</td>
+                    </tr>
+                `;
+            }
+        }
+        
+        
+        document.getElementById('modal-comparacao').style.display = 'flex';
+
+    } catch(err) {
+        alert('Erro durante a análise comparativa.');
+        console.error(err);
+    } finally {
+        loading.classList.remove('show');
+    }
 }

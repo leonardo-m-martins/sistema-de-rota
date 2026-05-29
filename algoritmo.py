@@ -1,5 +1,6 @@
 import math
 import random
+import random as rd
 import networkx as nx
 import osmnx as ox
 import os
@@ -134,23 +135,32 @@ def tempera(M, n, T=1000.0, alpha=0.995, T_min=0.1):
     return melhor, melhor_custo, historico, inicial
 
 if __name__ == "__main__":
-    # 1. Matriz de distâncias de mentira (3 cidades)
-    M_teste = [
-        [0.0, 10.0, 15.0, 20.0, 25.0],
-        [10.0, 0.0, 35.0, 25.0, 30.0],
-        [15.0, 35.0, 0.0, 30.0, 5.0],
-        [20.0, 25.0, 30.0, 0.0, 15.0],
-        [25.0, 30.0, 5.0, 15.0, 0.0]
+    # Matriz teste
+    n_teste = 10
+
+    mat = [
+        [rd.random() for _ in range(n_teste)] for _ in range(n_teste)
     ]
 
-    n_teste = 5
+    lista_ganhos= []
 
-    # 2. Executa a sua lógica
-    rota_final, custo_final, historico, rota_inicial = encosta_t(M_teste, n_teste)
+    for rodada in range(10):    
+        rota_final, custo_final, historico, rota_inicial = encosta_t(mat, n_teste)
 
-    print(f"rota solucaoinicial: {rota_inicial}")
-    print(f"rota solucaootimizada:{rota_final}")
-    print(f"rota custo final:{custo_final}")
+        custo_inicial = historico[0]
+        ganho = ((custo_inicial - custo_final) / custo_inicial) * 100
+        # criei pra guardar o ganho da rodada na lista
+        lista_ganhos.append(ganho)
+        
+        print(f"\n--- RODADA {rodada + 1} ---")
+        print(f"rota solucaoinicial: {rota_inicial}")
+        print(f"rota solucaootimizada:{rota_final}")
+        print(f"rota custo final:{custo_final}")
+        print(f"Ganho:{ganho:.1f}%")
+
+
+media_ganho= sum(lista_ganhos) / 10
+print(f"Ganho médio: {media_ganho:.1f}%")
 
 
 

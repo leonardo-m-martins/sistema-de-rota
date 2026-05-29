@@ -139,12 +139,13 @@ def AG(n,mat,tp,ng,tc,tm,ig):
     return si, sf, Avalia(n,mat,si), Avalia(n,mat,sf), historico 
 
 def test_ag():
-    n = 20
+    n = 10
     # matriz n x n
     mat = [
         [rd.random() for _ in range(n)] for _ in range(n)
     ]
-    si, sf, vi, vf = AG(n, mat, 20, 50, 0.8, 0.1, 0.1)
+    
+    si, sf, vi, vf, historico = AG(n, mat, 20, 50, 0.8, 0.1, 0.1)
 
     if len(np.unique(si)) == len(si):   print("si válido")
     else:                               print("si inválido")
