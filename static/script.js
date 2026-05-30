@@ -306,6 +306,19 @@ function desenharGrafico(hist) {
   gctx.fill();
 }
 
+function parseConfig(met, reqBody) {
+  switch (met) {
+    case ('encosta'):
+      return 'XXX';
+    case ('encosta_t'):
+      return `TMAX=${reqBody.tmax}`;
+    case ('tempera'):
+      return `TI=${reqBody.ti} TF=${reqBody.tf} FR=${reqBody.fr}`;
+    case ('genetico'):
+      return `TP=${reqBody.tp} NG=${reqBody.ng} TC=${reqBody.tc} TM=${reqBody.tm} IG=${reqBody.ig}`
+  }
+}
+
 async function compararMetodos() {
     
     if (cidades.length < 3) {
@@ -376,6 +389,7 @@ async function compararMetodos() {
                 tbody.innerHTML += `
                     <tr style="border-bottom: 1px solid #222;">
                         <td style="padding:15px; color:#00e5ff; font-weight: bold;">${nomesFamosos[met]}</td>
+                        <td style="color: #c1bdbd; text-align: center; padding: 8px;">${parseConfig(met, reqBody)}</td>
                         <td style="color: #ff5555;">${custoIni.toFixed(2)} km</td>
                         <td style="color: #00ff88;">${custoFim.toFixed(2)} km</td>
                         <td style="color: #ff00ff;">⬇ ${melhoria}%</td>
