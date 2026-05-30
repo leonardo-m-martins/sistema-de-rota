@@ -145,7 +145,7 @@ def test_ag():
         [rd.random() for _ in range(n)] for _ in range(n)
     ]
     
-    si, sf, vi, vf, historico = AG(n, mat, 20, 50, 0.8, 0.1, 0.1)
+    si, sf, vi, vf, historico = AG(n, mat, 50, 200, 0.8, 0.1, 0.1)
 
     if len(np.unique(si)) == len(si):   print("si válido")
     else:                               print("si inválido")
@@ -153,8 +153,12 @@ def test_ag():
     if len(np.unique(sf)) == len(sf):   print("sf válido")
     else:                               print("sf inválido")
 
+    ganho = ((vi - vf) / vi) * 100
+
+
     print(f'Inicial: {si}\tcusto: {vi}', 
-          f'Final:   {sf}\tcusto: {vf}', sep="\n")
+          f'Final:   {sf}\tcusto: {vf}', 
+          f'Ganho:   {ganho:.1f}%', sep="\n")
 
 if __name__ == "__main__":
     test_ag()

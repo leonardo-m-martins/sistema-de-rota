@@ -165,7 +165,7 @@ if __name__ == "__main__":
     lista_ganhos= []
 
     for rodada in range(10):    
-        rota_final, custo_final, historico, rota_inicial = encosta_t(mat, n_teste)
+        rota_final, custo_final, historico, rota_inicial = tempera(mat, n_teste)
 
         custo_inicial = historico[0]
         ganho = ((custo_inicial - custo_final) / custo_inicial) * 100
