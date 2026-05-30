@@ -69,8 +69,15 @@ def sucessores(rota):
 
 
 
-def encosta(M, n):
-    inicial = solucaoInicial(n)
+def encosta(M, n, si = None):
+    
+    if si is None:
+        inicial = solucaoInicial(n)
+    else:    
+    
+        inicial = si[:]
+    
+    
     atual = inicial[:]
     va = avalia(atual, n, M)
     historico = [va]
@@ -86,8 +93,14 @@ def encosta(M, n):
         else:
             return atual, va, historico, inicial
 
-def encosta_t(M, n, tmax=500):
-    inicial = solucaoInicial(n)
+def encosta_t(M, n, tmax=500, si= None):
+
+    if si is None:
+        inicial = solucaoInicial(n)
+    else:    
+    
+        inicial = si[:]
+    
     atual = inicial[:]
     va = avalia(atual, n, M)
     t = 0
@@ -107,8 +120,15 @@ def encosta_t(M, n, tmax=500):
 
     return atual, va, historico, inicial
 
-def tempera(M, n, T=1000.0, alpha=0.995, T_min=0.1):
-    inicial = solucaoInicial(n)
+def tempera(M, n, T=1000.0, alpha=0.995, T_min=0.1, si = None):
+
+    if si is None:
+        inicial = solucaoInicial(n)
+    else:    
+    
+        inicial = si[:]
+    
+
     atual = inicial[:]
     va = avalia(atual, n, M)
     
@@ -159,8 +179,8 @@ if __name__ == "__main__":
         print(f"Ganho:{ganho:.1f}%")
 
 
-media_ganho= sum(lista_ganhos) / 10
-print(f"Ganho médio: {media_ganho:.1f}%")
+    media_ganho= sum(lista_ganhos) / 10
+    print(f"Ganho médio: {media_ganho:.1f}%")
 
 
 
